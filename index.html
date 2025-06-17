@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<title>Chi smette di seguirmi su Instagram</title>
+</head>
+<body>
+  <h1>Confronta follower Instagram</h1>
+  <p>Carica la vecchia lista follower (file di testo):</p>
+  <input type="file" id="oldFile" />
+  
+  <p>Carica la nuova lista follower (file di testo):</p>
+  <input type="file" id="newFile" />
+  
+  <button onclick="compare()">Confronta</button>
+  
+  <h2>Risultato:</h2>
+  <pre id="result"></pre>
+  
+<script>
+  function readFile(input) {
+    return new Promise((resolve, reject) => {
+      const file = input.files[0];
+      if (!file) reject("Nessun file selezionato");
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject("Errore nella lettura del file");
+      reader.readAsText(file);
+    });
+  }
+
+  async function compare() {
+    try {
+      const oldText = await readFile(document.getElementById('oldFile'));
+      const newText = await readFile(document.getElementById('newFile'));
+      
+      const oldFollowers = new Set(oldText.split('\n').map(s => s.trim()).filter(Boolean));
+      const newFollowers = new Set(newText.split('\n').map(s => s.trim()).filter(Boolean));
+      
+      const unfollowers = [...oldFollowers].filter(x => !newFollowers.has(x));
+      
+      const resultArea = document.getElementById('result');
+      if (unfollowers.length === 0) {
+        resultArea.textContent = "Nessuno ha smesso di seguirti!";
+      } else {
+        resultArea.textContent = `Persone che hanno smesso di seguirti (${unfollowers.length}):\n` + unfollowers.join('\n');
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+</script>
+</body>
+</html>
